@@ -156,15 +156,13 @@ func sendNotificationMultipleDevice(c *gin.Context) {
 			Condition:  req.Condition,
 			FCMOptions: req.FCMOptions,
 		}
-		response, _ := fcmClient.Send(context.Background(), message)
+		response, err := fcmClient.Send(context.Background(), message)
 
-		// if err != nil {
-		// 	log.Printf("Send message error: %v", err)
-		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Send message error!."})
-		// 	return
-		// }
-
-		responses = append(responses, response)
+		if err != nil {
+			responses = append(responses, err.Error())
+		} else {
+			responses = append(responses, response)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
