@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "711a66c2-fe89-4bab-a83a-44c5ffe1d025",
+		"name": "AquilaFCM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25337240",
+		"_collection_link": "https://havyteam.postman.co/workspace/Station~9681fd35-049b-4ea4-9437-f19cac14d84b/collection/25337240-711a66c2-fe89-4bab-a83a-44c5ffe1d025?action=share&source=collection_link&creator=25337240"
+	},
+	"item": [
+		{
+			"name": "send single token",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"token\": \"cr83pTZA7uQnwGag3dQWor:APA91bENbnM9-FRxFNQZ0npCDpThHRIhbSI4vuglfvR5RTYxcM4ecJod88Aj4NKb1h4ZLQJfAAf9i6J2DfG5ER6cECQxWn4bLnVrgLyl0GNUa6Z9G6gHUQQ\",\n    \"title\": \"dev\",\n    \"body\": \"devsss\",\n    \"imageUrl\": \"http://localhost:3000/logo192.png\",\n    \"data\": {\n        \"khang\": \"dev\",\n        \"click_action\": \"http://localhost:3000/\",\n        \"title\": \"khangdev\",\n        \"body\": \"dev sdad ccc\",\n        \"imageUrl\": \"http://localhost:3000/logo192.png\",\n        \"messageId\": \"123456789\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/send",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"send"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send mutiple  token",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"token\": [\n        \"cr83pTZA7uQnwGag3dQWor:APA91bENbnM9-FRxFNQZ0npCDpThHRIhbSI4vuglfvR5RTYxcM4ecJod88Aj4NKb1h4ZLQJfAAf9i6J2DfG5ER6cECQxWn4bLnVrgLyl0GNUa6Z9G6gHUQQ\"\n    ],\n    \"title\": \"dev\",\n    \"body\": \"dev\",\n    \"imageUrl\": \"http://localhost:3000/logo192.png\"\n    // \"data\": {\n    //     \"khang\": \"dev\",\n    //     \"click_action\": \"http://localhost:3000/\",\n    //     \"title\": \"khangdev\",\n    //     \"body\": \"dev sdad ccc\",\n    //     \"imageUrl\": \"http://localhost:3000/logo192.png\",\n    //     \"messageId\": \"123456789\"\n    // }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/send",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"send"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

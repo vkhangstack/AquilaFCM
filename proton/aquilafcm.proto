@@ -1,0 +1,114 @@
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option go_package = "./aquilafcm.proto";
+option java_multiple_files = true;
+option java_outer_classname = "AquilaFCMProto";
+
+package aquilafcm;
+
+import "google/protobuf/timestamp.proto";
+
+
+service AquilaFCMService {
+  rpc SendSingleToken (SendSingleTokenRequest) returns (SendSingleTokenResponse) {}
+  rpc SendSingleTokenBulk (SendSingleTokenBulkRequest) returns (SendSingleTokenBulkResponse);
+}
+
+
+// AndroidNotification message
+message AndroidNotification {
+  string title = 1;                 // Overrides the Title field of the Notification type
+  string body = 2;                  // Overrides the Body field of the Notification type
+  string icon = 3;
+  string color = 4;                 // Notification color in #RRGGBB format
+  string sound = 5;
+  string tag = 6;
+  string click_action = 7;
+  string body_loc_key = 8;
+  repeated string body_loc_args = 9;
+  string title_loc_key = 10;
+  repeated string title_loc_args = 11;
+  string channel_id = 12;
+  string image_url = 13;
+  string ticker = 14;
+  bool sticky = 15;
+  google.protobuf.Timestamp event_timestamp = 16; // Event timestamp
+  bool local_only = 17;
+  int32 priority = 18;             // Corresponds to AndroidNotificationPriority enum
+  repeated int64 vibrate_timing_millis = 19;
+  bool default_vibrate_timings = 20;
+  bool default_sound = 21;
+  LightSettings light_settings = 22;
+  bool default_light_settings = 23;
+  int32 visibility = 24;           // Corresponds to AndroidNotificationVisibility enum
+  int32 notification_count = 25;   // Optional notification count
+}
+
+// LightSettings message
+message LightSettings {
+  string color = 1;
+  int32 light_on_duration_millis = 2;
+  int32 light_off_duration_millis = 3;
+}
+
+// Enumerations for AndroidNotificationPriority
+enum AndroidNotificationPriority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_MIN = 1;
+  PRIORITY_LOW = 2;
+  PRIORITY_DEFAULT = 3;
+  PRIORITY_HIGH = 4;
+  PRIORITY_MAX = 5;
+}
+
+message MessageAndroidConfig {
+   string collapse_key = 1;
+   string priority = 2;
+   string restricted_package_name = 3;
+   map<string, string> data = 4;
+   AndroidNotification notification = 5;
+}
+
+// The request message containing the user's name.
+message SendSingleTokenRequest {
+  string token = 1;
+  optional string title = 2;
+  optional string body = 3;
+  optional string imageUrl = 4;
+  map<string, string> data = 5;
+  MessageAndroidConfig android = 6;
+  map<string, string> ios = 7;
+  map<string, string> webpush = 8;
+  optional string topic = 9;
+  optional string condition = 10;
+
+}
+
+// The response message containing the greetings
+message SendSingleTokenResponse {
+  string message = 1;
+  string response = 2;
+}
+
+message SendSingleTokenBulkRequest {
+    repeated SendSingleTokenRequest requests = 1;
+}
+
+message SendSingleTokenBulkResponse {
+    repeated SendSingleTokenResponse responses = 1;
+}
+
