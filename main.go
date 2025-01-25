@@ -17,6 +17,20 @@ import (
 
 var fcmClient *messaging.Client
 
+// Body request
+type NotificationRequest struct {
+	Title      string                   `json:"title"` // Title in notification
+	Body       string                   `json:"body"`  //  Body in notification
+	Token      string                   `json:"token" validate:"required"`
+	ImageURL   string                   `json:"imageUrl"`   // "Image URL" in notification
+	Data       map[string]string        `json:"data"`       // Custom data (optional)
+	Android    *messaging.AndroidConfig `json:"android"`    // Android
+	APNS       *messaging.APNSConfig    `json:"ios"`        // Ios
+	Webpush    *messaging.WebpushConfig `json:"webpush"`    // Web Push
+	Topic      string                   `json:"topic"`      // Topic
+	FCMOptions *messaging.FCMOptions    `json:"fcmoptions"` // Fcm Options
+	Condition  string                   `json:"condition"`  // Condition
+}
 type Name struct {
 	Name string `json:"project_id"`
 }
@@ -46,21 +60,6 @@ func initFirebase(serviceAccountPath string) {
 }
 
 func sendNotification(c *gin.Context) {
-	// Body request
-	type NotificationRequest struct {
-		Title      string                   `json:"title"` // Title in notification
-		Body       string                   `json:"body"`  //  Body in notification
-		Token      string                   `json:"token" validate:"required"`
-		ImageURL   string                   `json:"imageUrl"`   // "Image URL" in notification
-		Data       map[string]string        `json:"data"`       // Custom data (optional)
-		Android    *messaging.AndroidConfig `json:"android"`    // Android
-		APNS       *messaging.APNSConfig    `json:"ios"`        // Ios
-		Webpush    *messaging.WebpushConfig `json:"webpush"`    // Web Push
-		Topic      string                   `json:"topic"`      // Topic
-		FCMOptions *messaging.FCMOptions    `json:"fcmoptions"` // Fcm Options
-		Condition  string                   `json:"condition"`  // Condition
-	}
-
 	var req NotificationRequest
 
 	// Validator body
@@ -171,6 +170,64 @@ func sendNotificationMultipleDevice(c *gin.Context) {
 	})
 }
 
+func sendNotificationBulk(c *gin.Context) {
+	var req []NotificationRequest
+
+	// Validator body
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Parse error in request body!"})
+		return
+	}
+
+	// create message body from request
+	messages := []*messaging.Message{}
+	for _, v := range req {
+		if v.Token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "token is required!"})
+			return
+		}
+
+		message := &messaging.Message{
+			Notification: &messaging.Notification{
+				Title:    v.Title,
+				Body:     v.Body,
+				ImageURL: v.ImageURL,
+			},
+			Token:      v.Token,
+			Data:       v.Data,
+			Android:    v.Android,
+			APNS:       v.APNS,
+			Webpush:    v.Webpush,
+			Topic:      v.Topic,
+			Condition:  v.Condition,
+			FCMOptions: v.FCMOptions,
+		}
+		messages = append(messages, message)
+
+	}
+
+	responses := []string{}
+	errResponse := []error{}
+
+	for _, m := range messages {
+
+		response, err := fcmClient.Send(context.Background(), m)
+		responses = append(responses, response)
+		errResponse = append(errResponse, err)
+
+		if err != nil {
+			log.Printf("Send message error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Send message error!.", "data": errResponse})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Send message successfully!",
+		"response": responses,
+	})
+}
+
 func main() {
 	// Định nghĩa tham số -p cho đường dẫn tệp
 	serviceAccountPath := flag.String("p", "config/serviceAccount.json", "Path to serviceAccount.json file")
@@ -202,6 +259,8 @@ func main() {
 
 	router.POST("/send", sendNotification)
 	router.PUT("/send", sendNotificationMultipleDevice)
+
+	router.POST("/send/bulk", sendNotificationBulk)
 
 	log.Println("Server listening at http://127.0.0.1:8080")
 	log.Println("Server listening at http://::1:8080")
