@@ -299,7 +299,7 @@ func (s *server) SendSingleToken(ctx context.Context, in *aquilafcm_proto.SendSi
 	}
 
 	if in.ImageUrl != nil && *in.ImageUrl != "" {
-		message.Notification.Body = *in.Body
+		message.Notification.ImageURL = *in.ImageUrl
 	}
 
 	if in.Data != nil {
