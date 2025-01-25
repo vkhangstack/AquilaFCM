@@ -9,7 +9,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"strings"
 	"sync"
 
 	firebase "firebase.google.com/go"
@@ -214,9 +213,6 @@ func sendNotificationBulk(c *gin.Context) {
 
 	}
 
-	// responses := []string{}
-	// errResponse := []error{}
-
 	var wg sync.WaitGroup
 	responseChan := make(chan string, len(messages))
 	errorChan := make(chan error, len(messages))
@@ -232,9 +228,11 @@ func sendNotificationBulk(c *gin.Context) {
 
 			if err != nil {
 				errorChan <- err
-			}
+				responseChan <- err.Error() + "with token " + msg.Token
 
-			responseChan <- response
+			} else {
+				responseChan <- response
+			}
 		}(m)
 
 	}
@@ -257,7 +255,7 @@ func sendNotificationBulk(c *gin.Context) {
 	// Check for errors and send response
 	if len(errResponses) > 0 {
 		log.Printf("Some messages failed: %v", errResponses)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Send message error!.", "data": errResponses})
+		c.JSON(http.StatusOK, gin.H{"message": "Send message have error!.", "response": responses})
 
 		return
 	}
@@ -321,7 +319,7 @@ func (s *server) SendSingleToken(ctx context.Context, in *aquilafcm_proto.SendSi
 	if err != nil {
 		log.Printf("Send message error: %v", err)
 
-		return &aquilafcm_proto.SendSingleTokenResponse{Message: "Send message error", Response: strings.TrimSpace(strings.Split(err.Error(), ";")[3])}, nil
+		return &aquilafcm_proto.SendSingleTokenResponse{Message: "Send message error", Response: err.Error()}, nil
 	}
 
 	return &aquilafcm_proto.SendSingleTokenResponse{Message: "Send message success!", Response: response}, nil
